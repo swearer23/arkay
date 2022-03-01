@@ -6,6 +6,7 @@ import * as material from '../lib/material.js'
 import inquirer from 'inquirer';
 import * as akatoshClient from '../lib/akatoshClient.js'
 import chalk from 'chalk'
+import { generateTag } from '../lib/utils/index.js'
 
 program
 .version('0.1.0')
@@ -48,18 +49,33 @@ program
 
 program
   .command('add')
-  .argument('<type>', 'material type to add [cp]')
   .argument('[name]', 'component name')
-  .action((type, name) => {
-    material.add(type, name)
+  .action( name => {
+    material.add(name)
   })
 
 program
   .command('release')
-  .argument('<type>', 'material type to add [cp]')
   .argument('[name]', 'component name')
-  .action((type, name) => {
-    material.release(type, name)
+  .action( name => {
+    material.release(name)
+  })
+
+// TODO: 等待联调
+program
+  .command('upgrade')
+  .argument('<name>', 'component name')
+  .description('upgrade a component version')
+  .action( name => {
+    inquirer.prompt([{
+      type: 'list',
+      name: 'upgrade_type',
+      message: 'select your upgrade mode:',
+      choices: ['patch', 'minor', 'major']
+    }])
+    .then(answers => {
+      material.release(name, answers.upgrade_type)
+    })
   })
 
 program.parse()

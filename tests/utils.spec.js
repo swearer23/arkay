@@ -7,4 +7,5 @@ describe('utils test suite', () => {
     expect(generateTag('awesome-button', 'minor')).toBe('0.1.0')
     expect(generateTag('awesome-button', 'major')).toBe('1.0.0')
   })
+
 })

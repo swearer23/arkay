@@ -6,7 +6,6 @@ import * as material from '../lib/material.js'
 import inquirer from 'inquirer';
 import * as akatoshClient from '../lib/akatoshClient.js'
 import chalk from 'chalk'
-import { generateTag } from '../lib/utils/index.js'
 
 program
 .version('0.1.0')
@@ -74,7 +73,12 @@ program
       choices: ['patch', 'minor', 'major']
     }])
     .then(answers => {
-      material.release(name, answers.upgrade_type)
+      const newVersionString = material.release(name, answers.upgrade_type)
+      if (newVersionString) {
+        // TODO: calling akatosh to release the component
+      } else {
+        console.log(chalk.red('==> there is something wrong with git repo, thanks for checking'))
+      }
     })
   })
 

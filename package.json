@@ -18,8 +18,12 @@
   },
   "homepage": "https://github.com/swearer23/arkay#readme",
   "jest": {
-    "testMatch": ["**/tests/**/*.spec.js"],
-    "modulePathIgnorePatterns": ["__demo_workspace__"]
+    "testMatch": [
+      "**/tests/**/*.spec.js"
+    ],
+    "modulePathIgnorePatterns": [
+      "__demo_workspace__"
+    ]
   },
   "dependencies": {
     "axios": "^0.26.0",
@@ -28,7 +32,8 @@
     "degit": "^2.8.4",
     "fs-extra": "^10.0.0",
     "inquirer": "^8.2.0",
-    "ora": "^6.1.0"
+    "ora": "^6.1.0",
+    "pnpm": "^6.32.2"
   },
   "engines": {
     "node": ">= 12.20.0"

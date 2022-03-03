@@ -1,6 +1,6 @@
 {
   "name": "@longfor-vue2-sfc/awesome-button",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "main": "src/index.js",
   "scripts": {
     "serve": "vue-cli-service serve",

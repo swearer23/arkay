@@ -85,7 +85,7 @@ program
   })
 
 program
-  .command('clone')
+  .command('fetch')
   .argument('[name]', 'component name')
   .action((name) => {
     if(!name){

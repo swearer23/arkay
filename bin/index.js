@@ -84,5 +84,12 @@ program
     })
   })
 
+program
+  .command('publish')
+  .argument('[name]', 'component name')
+  .action( name => {
+    material.publish(name)
+  })
+
 program.parse()
 

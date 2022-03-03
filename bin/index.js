@@ -48,18 +48,40 @@ program
 
 program
   .command('add')
-  .argument('<type>', 'material type to add [cp]')
   .argument('[name]', 'component name')
-  .action((type, name) => {
-    material.add(type, name)
+  .action( name => {
+    material.add(name)
   })
 
 program
   .command('release')
-  .argument('<type>', 'material type to add [cp]')
   .argument('[name]', 'component name')
-  .action((type, name) => {
-    material.release(type, name)
+  .action( name => {
+    material.release(name)
+  })
+
+// TODO: 等待联调
+program
+  .command('upgrade')
+  .argument('<name>', 'component name')
+  .description('upgrade a component version')
+  .action( name => {
+    inquirer.prompt([{
+      type: 'list',
+      name: 'upgrade_type',
+      message: 'select your upgrade mode:',
+      choices: ['patch', 'minor', 'major']
+    }])
+    .then(answers => {
+      const newVersionString = material.release(name, answers.upgrade_type)
+      console.log(chalk.green('==> '), chalk.green(`upgraded ${name} to ${newVersionString}`))
+      if (newVersionString) {
+        console.log(chalk.green('==> '), chalk.green(`calling akatosh server for publish new version of ${name}`))
+        // TODO: calling akatosh to release the component
+      } else {
+        console.log(chalk.red('==> there is something wrong with git repo, thanks for checking'))
+      }
+    })
   })
 
 program

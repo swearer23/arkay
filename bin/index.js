@@ -62,5 +62,17 @@ program
     material.release(type, name)
   })
 
-program.parse()
+program
+  .command('clone')
+  .argument('[name]', 'component name')
+  .action((name) => {
+    if(!name){
+      console.log(chalk.red.bold('==> File name cannot be empty'))
+      return 
+    }
+    workspace.clone(name)
+  })
+
+program.parse(process.argv)
+
 

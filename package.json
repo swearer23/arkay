@@ -3,7 +3,9 @@
   "version": "0.0.1",
   "type": "module",
   "description": "cli for creating login component workspace",
-  "bin": "./bin/index.js",
+  "bin": {
+    "arkay": "./bin/index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

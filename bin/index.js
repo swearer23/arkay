@@ -1,4 +1,4 @@
-#! /usr/bin/env node
+#!/usr/bin/env node
 
 import { program } from 'commander'
 import * as workspace from '../lib/workspace.js'
@@ -100,11 +100,17 @@ program
   .action((name) => {
     if(!name){
       console.log(chalk.red.bold('==> File name cannot be empty'))
-      return 
+      return
     }
     workspace.clone(name)
   })
 
 program.parse(process.argv)
+  .command('publish')
+  .argument('[name]', 'component name')
+  .action( name => {
+    material.publish(name)
+  })
 
+program.parse()
 

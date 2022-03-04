@@ -86,7 +86,7 @@ program
 
 program
   .command('fetch')
-  .argument('[name]', 'component name')
+  .argument('[name]', 'name of material to be fetched')
   .action((name) => {
     if(!name){
       console.log(chalk.red.bold('==> File name cannot be empty'))

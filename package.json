@@ -3,9 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "description": "cli for creating login component workspace",
-  "bin": {
-    "arkay": "./bin/index.js"
-  },
+  "bin": "./bin/index.js",
   "scripts": {
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },

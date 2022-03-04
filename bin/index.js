@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#! /usr/bin/env node
 
 import { program } from 'commander'
 import * as workspace from '../lib/workspace.js'
@@ -6,9 +6,7 @@ import * as material from '../lib/material.js'
 import inquirer from 'inquirer';
 import * as akatoshClient from '../lib/akatoshClient.js'
 import chalk from 'chalk'
-import fsExtra from 'fs-extra'
-
-const { readJsonSync } = fsExtra
+import { RELEASE_MATERIAL_ERROR } from '../lib/errors.js';
 
 program
 .version('0.1.0')
@@ -58,14 +56,6 @@ program
 
 program
   .command('release')
-  .argument('[name]', 'component name')
-  .action( name => {
-    material.release(name)
-  })
-
-// TODO: 等待联调
-program
-  .command('upgrade')
   .argument('<name>', 'component name')
   .description('upgrade a component version')
   .action( name => {
@@ -76,20 +66,16 @@ program
       choices: ['patch', 'minor', 'major']
     }])
     .then(async answers => {
-      const newVersionString = material.release(name, answers.upgrade_type)
-      console.log(chalk.green('==> '), chalk.green(`upgraded ${name} to ${newVersionString}`))
-      if (newVersionString) {
-        console.log(chalk.green('==> '), chalk.green(`calling akatosh server for publish new version of ${name}`))
-        const { namespace } = readJsonSync('./.arkay.config.json')
-        try {
-          await akatoshClient.publishComponent(`${namespace}/${name}`, newVersionString)
-          console.log(chalk.green('==> '), chalk.green(`published new version of ${name}`))
-        } catch (err) {
-          console.log(chalk.red('ERROR: '), chalk.red(err.message))
+      try {
+        material.release(name, answers.upgrade_type)
+      } catch (err) {
+        if (err instanceof RELEASE_MATERIAL_ERROR) {
+          if (err.name == 'REPO_PUSH_PERMISSION_ERROR') {
+            material.newMergeRequest(name)
+          } else {
+            console.log(chalk.red(err.message))
+          }
         }
-        // TODO: calling akatosh to release the component
-      } else {
-        console.log(chalk.red('==> there is something wrong with git repo, thanks for checking'))
       }
     })
   })
@@ -105,12 +91,4 @@ program
     workspace.clone(name)
   })
 
-program.parse(process.argv)
-  .command('publish')
-  .argument('[name]', 'component name')
-  .action( name => {
-    material.publish(name)
-  })
-
 program.parse()
-

@@ -94,5 +94,17 @@ program
     })
   })
 
-program.parse()
+program
+  .command('fetch')
+  .argument('[name]', 'name of material to be fetched')
+  .action((name) => {
+    if(!name){
+      console.log(chalk.red.bold('==> File name cannot be empty'))
+      return 
+    }
+    workspace.clone(name)
+  })
+
+program.parse(process.argv)
+
 

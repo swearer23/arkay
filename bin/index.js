@@ -32,9 +32,10 @@ program
       const username = answers.git_username
       const akatoshServer = answers.akatosh_server || 'http://akatosh.longfor.com'
       try {
-        if (await akatoshClient.validateUsername(username, akatoshServer)) {
+        const {valid, gitlabUrlHttp} = await akatoshClient.validateUsername(username, akatoshServer)
+        if (valid) {
           const extraOptions = {
-            username, akatoshServer
+            username, akatoshServer, githost: gitlabUrlHttp
           }
           workspace.create(option.force, extraOptions)
         } else {

@@ -75,6 +75,8 @@ program
           } else {
             console.log(chalk.red(err.message))
           }
+        } else {
+          console.log(chalk.red(err.message))
         }
       }
     })

@@ -30,7 +30,7 @@ program
     ])
     .then(async answers => {
       const username = answers.git_username
-      const akatoshServer = answers.akatosh_server
+      const akatoshServer = answers.akatosh_server || 'http://akatosh.longfor.com'
       try {
         if (await akatoshClient.validateUsername(username, akatoshServer)) {
           const extraOptions = {
@@ -51,7 +51,8 @@ program
   .command('add')
   .argument('[name]', 'component name')
   .action( name => {
-    material.add(name)
+    if (material.add(name) )
+      workspace.onMaterialAdded()
   })
 
 program
@@ -90,7 +91,8 @@ program
       console.log(chalk.red.bold('==> File name cannot be empty'))
       return
     }
-    workspace.clone(name)
+    if (material.clone(name))
+      workspace.onMaterialAdded()
   })
 
 program.parse()

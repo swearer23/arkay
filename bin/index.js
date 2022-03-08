@@ -15,6 +15,7 @@ program
 program
   .command('init')
   .option('--force', 'forcefully override existing content in current working folder')
+  .description('initialize a new arkay workspace')
   .action( option => {
     inquirer.prompt([
       {
@@ -50,7 +51,8 @@ program
 
 program
   .command('add')
-  .argument('[name]', 'component name')
+  .argument('<name>', 'component name')
+  .description('add a new component to your workspace')
   .action( name => {
     if (material.add(name) )
       workspace.onMaterialAdded()
@@ -86,7 +88,8 @@ program
 
 program
   .command('fetch')
-  .argument('[name]', 'name of material to be fetched')
+  .argument('<name>', 'name of material to be fetched')
+  .description('fetch a material from a remote git repository')
   .action((name) => {
     if(!name){
       console.log(chalk.red.bold('==> File name cannot be empty'))
@@ -94,6 +97,13 @@ program
     }
     if (material.clone(name))
       workspace.onMaterialAdded()
+  })
+
+program
+  .command('hoist')
+  .description('hoist components dependencies up to workspace incase for building workspace storybook')
+  .action(() => {
+    workspace.hoist()
   })
 
 program.parse()

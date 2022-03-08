@@ -53,8 +53,8 @@ program
   .command('add')
   .argument('<name>', 'component name')
   .description('add a new component to your workspace')
-  .action( name => {
-    if (material.add(name) )
+  .action(async name => {
+    if (await material.add(name) )
       workspace.onMaterialAdded()
   })
 

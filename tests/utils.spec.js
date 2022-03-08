@@ -1,4 +1,4 @@
-import { generateTag } from '../lib/utils/index.js'
+import { generateTag } from '../lib/utils/gitOps.js'
 
 describe('utils test suite', () => {
   test('generateTag test case', () => {

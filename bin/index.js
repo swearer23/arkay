@@ -71,7 +71,7 @@ program
     }])
     .then(async answers => {
       try {
-        material.release(name, answers.upgrade_type)
+        await material.release(name, answers.upgrade_type)
       } catch (err) {
         if (err instanceof RELEASE_MATERIAL_ERROR) {
           if (err.name == 'REPO_PUSH_PERMISSION_ERROR') {

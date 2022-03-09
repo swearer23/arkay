@@ -48,6 +48,8 @@ program
   .argument('<name>', 'component name')
   .description('upgrade a component version')
   .action( async name => {
+    material.newMergeRequest(name)
+    return
     const answers = await prompt.releaseUpgradeType()
     try {
       await material.release(name, answers.upgrade_type)

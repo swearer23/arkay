@@ -7,6 +7,7 @@ import inquirer from 'inquirer';
 import * as akatoshClient from '../lib/akatoshClient.js'
 import chalk from 'chalk'
 import { RELEASE_MATERIAL_ERROR } from '../lib/errors.js';
+import * as cmdIntercepter from './cmdIntercepter.js';
 
 program
 .version('0.1.0')
@@ -54,7 +55,7 @@ program
   .argument('<name>', 'component name')
   .description('add a new component to your workspace')
   .action(async name => {
-    if (await material.add(name) )
+    if (cmdIntercepter.switchToRootPath(name) && await material.add(name) )
       workspace.onMaterialAdded()
   })
 
@@ -71,7 +72,9 @@ program
     }])
     .then(async answers => {
       try {
-        material.release(name, answers.upgrade_type)
+        if (cmdIntercepter.switchToRootPath()) {
+          material.release(name, answers.upgrade_type)
+        }
       } catch (err) {
         if (err instanceof RELEASE_MATERIAL_ERROR) {
           if (err.name == 'REPO_PUSH_PERMISSION_ERROR') {
@@ -95,7 +98,7 @@ program
       console.log(chalk.red.bold('==> File name cannot be empty'))
       return
     }
-    if (material.clone(name))
+    if (cmdIntercepter.switchToRootPath() && material.clone(name))
       workspace.onMaterialAdded()
   })
 
@@ -103,7 +106,9 @@ program
   .command('hoist')
   .description('hoist components dependencies up to workspace incase for building workspace storybook')
   .action(() => {
-    workspace.hoist()
+    if (cmdIntercepter.switchToRootPath()) {
+      workspace.hoist()
+    }
   })
 
 program.parse()

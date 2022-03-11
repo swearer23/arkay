@@ -69,10 +69,6 @@ program
   .argument('<name>', 'name of material to be fetched')
   .description('fetch a material from a remote git repository')
   .action((name) => {
-    if(!name){
-      console.log(chalk.red.bold('==> File name cannot be empty'))
-      return
-    }
     if (material.clone(name))
       workspace.onMaterialAdded()
   })

@@ -5,6 +5,7 @@ import * as workspace from '../lib/workspace.js'
 import * as material from '../lib/material.js'
 import inquirer from 'inquirer';
 import * as akatoshClient from '../lib/akatoshClient.js'
+import {log} from '../lib/utils/index.js'
 import chalk from 'chalk'
 
 program
@@ -41,7 +42,9 @@ program
         }
       } catch (err) {
         console.error(err)
-        console.log(chalk.red(err.message))
+        log.error(err.message)
+        // log.combine(`INFO[${err.message}]`,'ERROR[你错了]')
+        // console.log(chalk.red(err.message))
       }
     })
   })
@@ -74,12 +77,15 @@ program
     }])
     .then(answers => {
       const newVersionString = material.release(name, answers.upgrade_type)
-      console.log(chalk.green('==> '), chalk.green(`upgraded ${name} to ${newVersionString}`))
+      log.combine('INFO[==> ]', `INFO[upgraded ${name} to ${newVersionString}]`)
+      // console.log(chalk.green('==> '), chalk.green(`upgraded ${name} to ${newVersionString}`))
       if (newVersionString) {
-        console.log(chalk.green('==> '), chalk.green(`calling akatosh server for publish new version of ${name}`))
+        log.combine('INFO[==> ]', `INFO[calling akatosh server for publish new version of ${name}]`)
+        // console.log(chalk.green('==> '), chalk.green(`calling akatosh server for publish new version of ${name}`))
         // TODO: calling akatosh to release the component
       } else {
-        console.log(chalk.red('==> there is something wrong with git repo, thanks for checking'))
+        log.error('==> there is something wrong with git repo, thanks for checking')
+        // console.log(chalk.red('==> there is something wrong with git repo, thanks for checking'))
       }
     })
   })

@@ -5,7 +5,7 @@ import * as workspace from '../lib/workspace.js'
 import * as material from '../lib/material.js'
 import * as prompt from '../lib/utils/prompt.js'
 import * as akatoshClient from '../lib/akatoshClient.js'
-import chalk from 'chalk'
+import logger from '../lib/utils/logger.js'
 import { RELEASE_MATERIAL_ERROR, ADD_MATERIAL_ERROR, COMMON_MATERIAL_ERROR } from '../lib/errors.js';
 
 program
@@ -26,11 +26,10 @@ program
         }
         workspace.create(option.force, extraOptions)
       } else {
-        console.log(chalk.red('ERROR: username is not valid'))
+        logger.error('username is not valid')
       }
-    } catch (err) {
-      console.error(err)
-      console.log(chalk.red(err.message))
+    }  catch (err) {
+      logger.error(err.message)
     }
   })
 
@@ -65,12 +64,12 @@ program
         if (err.name == 'REPO_PUSH_PERMISSION_ERROR') {
           material.newMergeRequest(name)
         } else {
-          console.log(chalk.red(err.message))
+          logger.error(err.message)
         }
       } else if (err instanceof COMMON_MATERIAL_ERROR) {
         console.log(chalk.red(err))
       } else {
-        console.log(chalk.red(err.message))
+        logger.error((err.message)
       }
     }
   })
@@ -84,7 +83,7 @@ program
       if (material.clone(name))
         workspace.onMaterialAdded()
     } catch (err) {
-      console.log(chalk.red(err))
+      logger.error(err)
     }
   })
 

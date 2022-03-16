@@ -1,5 +1,7 @@
 import fsExtra from "fs-extra";
 import chalk from "chalk";
+import path from "path";
+import { WORKSPACE_NOT_FOUND } from "../lib/errors.js";
 
 const { pathExistsSync } = fsExtra
 
@@ -8,24 +10,22 @@ const { pathExistsSync } = fsExtra
  */
 export const switchToRootPath = componentName => {
   let curPath = process.cwd()
-  return upLoop(curPath, componentName)
+  let rootPath = path.parse(curPath).root
+  upLoop(curPath, rootPath, componentName)
 }
 
-const upLoop = (curPath, componentName) => {
-  if (curPath.indexOf(componentName) === -1) {
-    console.log(chalk.red('==> '), chalk.red('Execute this command at the root of the workspace'))
-    return false
-  }
+const upLoop = (curPath, rootPath, componentName) => {
   const componentPath = `${curPath}/.arkay.config.json`
   if (!pathExistsSync(componentPath)) {
-    let rootPath = curPath.substring(0, curPath.lastIndexOf(componentName) + componentName.length)
     if (curPath === rootPath) {
       console.log(chalk.red('==> '), chalk.red('Workspace not found, please execute arkay init first!'))
-      return false
+      throw new WORKSPACE_NOT_FOUND()
     }
     curPath = curPath.substring(0, curPath.lastIndexOf('/'))
+    if (curPath == '') {
+      curPath = rootPath
+    }
     process.chdir(curPath)
-    upLoop(curPath, componentName)
+    upLoop(curPath, rootPath, componentName)
   }
-  return true
 }

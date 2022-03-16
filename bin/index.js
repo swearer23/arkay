@@ -5,8 +5,7 @@ import * as workspace from '../lib/workspace.js'
 import * as material from '../lib/material.js'
 import * as prompt from '../lib/utils/prompt.js'
 import * as akatoshClient from '../lib/akatoshClient.js'
-import {log} from '../lib/utils/index.js'
-import chalk from 'chalk'
+import logger from '../lib/utils/logger.js'
 import { RELEASE_MATERIAL_ERROR } from '../lib/errors.js';
 
 program
@@ -27,13 +26,10 @@ program
         }
         workspace.create(option.force, extraOptions)
       } else {
-        log.error('ERROR: username is not valid')
+        logger.error('username is not valid')
       }
     }  catch (err) {
-      console.error(err)
-      log.error(err.message)
-      // log.combine(`INFO[${err.message}]`,'ERROR[你错了]')
-      // console.log(chalk.red(err.message))
+      logger.error(err.message)
     }
   })
 
@@ -59,10 +55,10 @@ program
         if (err.name == 'REPO_PUSH_PERMISSION_ERROR') {
           material.newMergeRequest(name)
         } else {
-          log.error(err.message)
+          logger.error(err.message)
         }
       } else {
-        log.error((err.message)
+        logger.error((err.message)
       }
     }
   })
@@ -73,8 +69,7 @@ program
   .description('fetch a material from a remote git repository')
   .action((name) => {
     if(!name){
-      log.error('==> File name cannot be empty')
-      // console.log(chalk.red.bold('==> File name cannot be empty'))
+      logger.error('File name cannot be empty')
       return
     }
     if (material.clone(name))

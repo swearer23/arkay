@@ -43,9 +43,9 @@ program
       workspace.onMaterialAdded()
     } catch (err) {
       if (err instanceof ADD_MATERIAL_ERROR) {
-        console.log(chalk.red(err))
+        logger.error(err)
       } else if (err instanceof COMMON_MATERIAL_ERROR) {
-        console.log(chalk.red(err))
+        logger.error(err)
       } else
         throw err
     }
@@ -67,9 +67,9 @@ program
           logger.error(err.message)
         }
       } else if (err instanceof COMMON_MATERIAL_ERROR) {
-        console.log(chalk.red(err))
+        logger.error(err)
       } else {
-        logger.error((err.message)
+        logger.error(err.message)
       }
     }
   })

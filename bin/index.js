@@ -3,11 +3,11 @@
 import { program } from 'commander'
 import * as workspace from '../lib/workspace.js'
 import * as material from '../lib/material.js'
-import inquirer from 'inquirer';
+import * as prompt from '../lib/utils/prompt.js'
 import * as akatoshClient from '../lib/akatoshClient.js'
-import chalk from 'chalk'
-import { RELEASE_MATERIAL_ERROR } from '../lib/errors.js';
-import * as cmdIntercepter from './cmdIntercepter.js';
+import logger from '../lib/utils/logger.js'
+import { RELEASE_MATERIAL_ERROR, ADD_MATERIAL_ERROR, COMMON_MATERIAL_ERROR } from '../lib/errors.js';
+import * as cmdIntercepter from './cmdIntercepter.js'
 
 program
 .version('0.1.0')
@@ -17,37 +17,21 @@ program
   .command('init')
   .option('--force', 'forcefully override existing content in current working folder')
   .description('initialize a new arkay workspace')
-  .action( option => {
-    inquirer.prompt([
-      {
-        type: 'input',
-        name: 'git_username',
-        message: "setting your git username: \n git username: "
-      },
-      {
-        type: 'input',
-        name: 'akatosh_server',
-        message: "setting your akatosh server host (eg. http://akatosh.longfor.com): \n server url: "
-      }
-    ])
-    .then(async answers => {
-      const username = answers.git_username
-      const akatoshServer = answers.akatosh_server || 'http://akatosh.longfor.com'
-      try {
-        const {valid, gitlabUrlHttp} = await akatoshClient.validateUsername(username, akatoshServer)
-        if (valid) {
-          const extraOptions = {
-            username, akatoshServer, githost: gitlabUrlHttp
-          }
-          workspace.create(option.force, extraOptions)
-        } else {
-          console.log(chalk.red('ERROR: username is not valid'))
+  .action( async option => {
+    const { username, akatoshServer } = await prompt.initWorkspace()
+    try {
+      const {valid, gitlabUrlHttp} = await akatoshClient.validateUsername(username, akatoshServer)
+      if (valid) {
+        const extraOptions = {
+          username, akatoshServer, githost: gitlabUrlHttp
         }
-      } catch (err) {
-        console.error(err)
-        console.log(chalk.red(err.message))
+        workspace.create(option.force, extraOptions)
+      } else {
+        logger.error('username is not valid')
       }
-    })
+    }  catch (err) {
+      logger.error(err.message)
+    }
   })
 
 program
@@ -55,38 +39,42 @@ program
   .argument('<name>', 'component name')
   .description('add a new component to your workspace')
   .action(async name => {
-    cmdIntercepter.switchToRootPath(name)
-    if (await material.add(name) )
+    try {
+      cmdIntercepter.switchToRootPath(name)
+      await material.add(name)
       workspace.onMaterialAdded()
+    } catch (err) {
+      if (err instanceof ADD_MATERIAL_ERROR) {
+        logger.error(err)
+      } else if (err instanceof COMMON_MATERIAL_ERROR) {
+        logger.error(err)
+      } else
+        throw err
+    }
   })
 
 program
   .command('release')
   .argument('<name>', 'component name')
   .description('upgrade a component version')
-  .action( name => {
-    inquirer.prompt([{
-      type: 'list',
-      name: 'upgrade_type',
-      message: 'select your upgrade mode:',
-      choices: ['patch', 'minor', 'major']
-    }])
-    .then(async answers => {
-      try {
-        cmdIntercepter.switchToRootPath()
-        material.release(name, answers.upgrade_type)
-      } catch (err) {
-        if (err instanceof RELEASE_MATERIAL_ERROR) {
-          if (err.name == 'REPO_PUSH_PERMISSION_ERROR') {
-            material.newMergeRequest(name)
-          } else {
-            console.log(chalk.red(err.message))
-          }
+  .action( async name => {
+    const answers = await prompt.releaseUpgradeType()
+    try {
+      cmdIntercepter.switchToRootPath(name)
+      await material.release(name, answers.upgrade_type)
+    } catch (err) {
+      if (err instanceof RELEASE_MATERIAL_ERROR) {
+        if (err.name == 'REPO_PUSH_PERMISSION_ERROR') {
+          material.newMergeRequest(name)
         } else {
-          console.log(chalk.red(err.message))
+          logger.error(err.message)
         }
+      } else if (err instanceof COMMON_MATERIAL_ERROR) {
+        logger.error(err)
+      } else {
+        logger.error(err.message)
       }
-    })
+    }
   })
 
 program
@@ -94,20 +82,19 @@ program
   .argument('<name>', 'name of material to be fetched')
   .description('fetch a material from a remote git repository')
   .action((name) => {
-    if(!name){
-      console.log(chalk.red.bold('==> File name cannot be empty'))
-      return
+    try {
+      cmdIntercepter.switchToRootPath(name)
+      if (material.clone(name))
+        workspace.onMaterialAdded()
+    } catch (err) {
+      logger.error(err)
     }
-    cmdIntercepter.switchToRootPath()
-    if (material.clone(name))
-      workspace.onMaterialAdded()
   })
 
 program
   .command('hoist')
   .description('hoist components dependencies up to workspace incase for building workspace storybook')
   .action(() => {
-    cmdIntercepter.switchToRootPath()
     workspace.hoist()
   })
 

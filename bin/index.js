@@ -6,7 +6,7 @@ import * as material from '../lib/material.js'
 import * as prompt from '../lib/utils/prompt.js'
 import * as akatoshClient from '../lib/akatoshClient.js'
 import logger from '../lib/utils/logger.js'
-import { RELEASE_MATERIAL_ERROR } from '../lib/errors.js';
+import { RELEASE_MATERIAL_ERROR, ADD_MATERIAL_ERROR, COMMON_MATERIAL_ERROR } from '../lib/errors.js';
 
 program
 .version('0.1.0')
@@ -38,8 +38,17 @@ program
   .argument('<name>', 'component name')
   .description('add a new component to your workspace')
   .action(async name => {
-    if (await material.add(name) )
+    try {
+      await material.add(name)
       workspace.onMaterialAdded()
+    } catch (err) {
+      if (err instanceof ADD_MATERIAL_ERROR) {
+        console.log(chalk.red(err))
+      } else if (err instanceof COMMON_MATERIAL_ERROR) {
+        console.log(chalk.red(err))
+      } else
+        throw err
+    }
   })
 
 program
@@ -57,6 +66,8 @@ program
         } else {
           logger.error(err.message)
         }
+      } else if (err instanceof COMMON_MATERIAL_ERROR) {
+        console.log(chalk.red(err))
       } else {
         logger.error((err.message)
       }
@@ -68,12 +79,12 @@ program
   .argument('<name>', 'name of material to be fetched')
   .description('fetch a material from a remote git repository')
   .action((name) => {
-    if(!name){
-      logger.error('File name cannot be empty')
-      return
+    try {
+      if (material.clone(name))
+        workspace.onMaterialAdded()
+    } catch (err) {
+      logger.error(err)
     }
-    if (material.clone(name))
-      workspace.onMaterialAdded()
   })
 
 program

@@ -7,6 +7,7 @@ import * as prompt from '../lib/utils/prompt.js'
 import * as akatoshClient from '../lib/akatoshClient.js'
 import logger from '../lib/utils/logger.js'
 import { RELEASE_MATERIAL_ERROR, ADD_MATERIAL_ERROR, COMMON_MATERIAL_ERROR } from '../lib/errors.js';
+import * as cmdIntercepter from './cmdIntercepter.js'
 
 program
 .version('0.1.0')
@@ -39,6 +40,7 @@ program
   .description('add a new component to your workspace')
   .action(async name => {
     try {
+      cmdIntercepter.switchToRootPath()
       await material.add(name)
       workspace.onMaterialAdded()
     } catch (err) {
@@ -47,7 +49,7 @@ program
       } else if (err instanceof COMMON_MATERIAL_ERROR) {
         logger.error(err)
       } else
-        throw err
+        logger.error(err)
     }
   })
 
@@ -58,6 +60,7 @@ program
   .action( async name => {
     const answers = await prompt.releaseUpgradeType()
     try {
+      cmdIntercepter.switchToRootPath()
       await material.release(name, answers.upgrade_type)
     } catch (err) {
       if (err instanceof RELEASE_MATERIAL_ERROR) {
@@ -80,6 +83,7 @@ program
   .description('fetch a material from a remote git repository')
   .action((name) => {
     try {
+      cmdIntercepter.switchToRootPath()
       if (material.clone(name))
         workspace.onMaterialAdded()
     } catch (err) {

@@ -40,7 +40,7 @@ program
   .description('add a new component to your workspace')
   .action(async name => {
     try {
-      cmdIntercepter.switchToRootPath(name)
+      cmdIntercepter.switchToRootPath()
       await material.add(name)
       workspace.onMaterialAdded()
     } catch (err) {
@@ -49,7 +49,7 @@ program
       } else if (err instanceof COMMON_MATERIAL_ERROR) {
         logger.error(err)
       } else
-        throw err
+        logger.error(err)
     }
   })
 
@@ -60,7 +60,7 @@ program
   .action( async name => {
     const answers = await prompt.releaseUpgradeType()
     try {
-      cmdIntercepter.switchToRootPath(name)
+      cmdIntercepter.switchToRootPath()
       await material.release(name, answers.upgrade_type)
     } catch (err) {
       if (err instanceof RELEASE_MATERIAL_ERROR) {
@@ -83,7 +83,7 @@ program
   .description('fetch a material from a remote git repository')
   .action((name) => {
     try {
-      cmdIntercepter.switchToRootPath(name)
+      cmdIntercepter.switchToRootPath()
       if (material.clone(name))
         workspace.onMaterialAdded()
     } catch (err) {

@@ -18,12 +18,12 @@ program
   .option('--force', 'forcefully override existing content in current working folder')
   .description('initialize a new arkay workspace')
   .action( async option => {
-    const { username, akatoshServer } = await prompt.initWorkspace()
+    const { username, akatoshServer, gitlabToken } = await prompt.initWorkspace()
     try {
-      const {valid, gitlabUrlHttp} = await akatoshClient.validateUsername(username, akatoshServer)
+      const {valid, gitlabUrlHttp} = await akatoshClient.validateUsername(username, akatoshServer, gitlabToken)
       if (valid) {
         const extraOptions = {
-          username, akatoshServer, githost: gitlabUrlHttp
+          username, akatoshServer, githost: gitlabUrlHttp, gitlabToken
         }
         workspace.create(option.force, extraOptions)
       } else {

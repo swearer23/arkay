@@ -6,7 +6,13 @@ import * as material from '../lib/material.js'
 import * as prompt from '../lib/utils/prompt.js'
 import * as akatoshClient from '../lib/akatoshClient.js'
 import logger from '../lib/utils/logger.js'
-import { RELEASE_MATERIAL_ERROR, ADD_MATERIAL_ERROR, COMMON_MATERIAL_ERROR } from '../lib/errors.js';
+import {
+  RELEASE_MATERIAL_ERROR,
+  ADD_MATERIAL_ERROR,
+  COMMON_MATERIAL_ERROR,
+  ARKAY_USER_CONFIG_MISSING,
+  ARKAY_USER_TOKEN_ERROR
+} from '../lib/errors.js';
 import * as cmdIntercepter from './cmdIntercepter.js'
 
 program
@@ -96,6 +102,29 @@ program
   .description('hoist components dependencies up to workspace incase for building workspace storybook')
   .action(() => {
     workspace.hoist()
+  })
+
+program
+  .command('use')
+  .argument('<name>', 'name of material to be used')
+  .description('using source code of a component in public registry')
+  .action(async name => {
+    try {
+      await material.use(name)
+    } catch (err) {
+      if (err instanceof ARKAY_USER_CONFIG_MISSING) {
+        logger.warn('you have not initialized arkay yet, please input some basic info below')
+        try {
+          await workspace.initUserConfig()
+          await material.use(name)
+        } catch (err) {
+          if (err instanceof ARKAY_USER_TOKEN_ERROR) {
+            logger.error(err.message)
+          }
+        }
+      } else
+        logger.error(err)
+    }
   })
 
 program.parse()
